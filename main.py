@@ -74,3 +74,4 @@ while True:
 
     eats.update(H)
     collideeats()
+#ааааааааа
