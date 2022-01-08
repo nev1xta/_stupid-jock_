@@ -19,9 +19,9 @@ clock = pygame.time.Clock()
 FPS = 60
 game_score = 0
 
-eats_data = ({'path': 'pixil-frame-0.png', 'score': 100},
-              {'path': 'pixil-frame-0.png', 'score': 150},
-              {'path': 'pixil-frame-0.png', 'score': 200})
+eats_data = ({'path': 'egg.png', 'score': 100},
+              {'path': 'meat.png', 'score': 150},
+              {'path': 'soup.png', 'score': 200})
 
 eats_surf = [pygame.image.load('images/'+data['path']).convert_alpha() for data in eats_data]
 
