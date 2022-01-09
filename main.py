@@ -11,7 +11,7 @@ W, H = 1000, 650
 sc = pygame.display.set_mode((W, H))
 pygame.display.set_caption('STUPID JOCK')
 
-telega = pygame.image.load('images/led_strips_doge.bmp').convert_alpha()
+telega = pygame.image.load('images/jock.png').convert_alpha()
 t_rect = telega.get_rect(centerx=W//2, bottom=H-5)
 
 
