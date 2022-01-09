@@ -12,6 +12,7 @@ sc = pygame.display.set_mode((W, H))
 pygame.display.set_caption('STUPID JOCK')
 
 telega = pygame.image.load('images/jock.png').convert_alpha()
+bg = pygame.image.load("images/red_bg.png")
 t_rect = telega.get_rect(centerx=W//2, bottom=H-5)
 
 
@@ -30,7 +31,7 @@ eats = pygame.sprite.Group()
 
 def createBall(group):
     indx = randint(0, len(eats_surf)-1)
-    x = randint(20, W-20)
+    x = randint(165, 650-20)
     speed = randint(1, 4)
 
     return Ball(x, speed, eats_surf[indx], eats_data[indx]['score'], group)
@@ -56,14 +57,14 @@ while True:
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a] or keys[pygame.K_LEFT]:
         t_rect.x -= speed
-        if t_rect.x < 0:
-            t_rect.x = 0
+        if t_rect.x < 150:
+            t_rect.x = 150
     elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
         t_rect.x += speed
-        if t_rect.x > W-t_rect.width:
-            t_rect.x = W-t_rect.width
+        if t_rect.x > 650-t_rect.width:
+            t_rect.x = 650-t_rect.width
 
-    sc.fill('white')
+    sc.blit(bg, (0, 0))
     eats.draw(sc)
     sc_text = f.render(str(game_score), 1, (94, 138, 14))
     sc.blit(sc_text, (20, 10))
