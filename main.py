@@ -55,7 +55,6 @@ def collideeats():
             ball.kill()
             if not check_health():
                 print('game over')
-                game_over()
 
 
 def print_text(mesage, x, y, font_color=(94, 138, 14), font_type='Fonts/Samson.ttf', font_size=40):
@@ -64,13 +63,16 @@ def print_text(mesage, x, y, font_color=(94, 138, 14), font_type='Fonts/Samson.t
     sc.blit(text, (x, y))
 
 
-def game_over():
+def game_over(bool):
     global health, game_score, eats
-    pause()
-    health = 3
-    game_score = 0
-    for i in eats:
-        i.kill()
+    if bool:
+        pause()
+    else:
+        pause()
+        health = 3
+        game_score = 0
+        for i in eats:
+            i.kill()
 
 
 def pause():
@@ -102,7 +104,7 @@ def check_health():
     global health
     health -= 1
     if health == 0:
-        game_over()
+        game_over(bool=False)
         return False
     return True
 
@@ -119,11 +121,12 @@ while True:
         t_rect.x -= speed
         if t_rect.x < 150:
             t_rect.x = 150
-    elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+    if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
         t_rect.x += speed
         if t_rect.x > 650-t_rect.width:
             t_rect.x = 650-t_rect.width
-
+    if keys[pygame.K_ESCAPE]:
+        game_over(True)
 
     sc.blit(bg, (0, 0))
     eats.draw(sc)
