@@ -2,29 +2,33 @@ import pygame
 from ball import Ball
 from random import randint
 
-
 pygame.init()
+
 pygame.time.set_timer(pygame.USEREVENT, 2000)
-f = pygame.font.SysFont('arial', 30)
 
 W, H = 1000, 650
 sc = pygame.display.set_mode((W, H))
 pygame.display.set_caption('STUPID JOCK')
+
 
 telega = pygame.image.load('images/jock.png').convert_alpha()
 bg = pygame.image.load("images/red_bg.png")
 t_rect = telega.get_rect(centerx=W//2, bottom=H-5)
 
 
+
 clock = pygame.time.Clock()
 FPS = 60
 game_score = 0
+health = 3
+health_img = pygame.image.load('images/heart.png')
 
 eats_data = ({'path': 'egg.png', 'score': 100},
               {'path': 'meat.png', 'score': 150},
               {'path': 'soup.png', 'score': 200})
 
-eats_surf = [pygame.image.load('images/'+data['path']).convert_alpha() for data in eats_data]
+
+eats_surf = [pygame.image.load('images/' + data['path']).convert_alpha() for data in eats_data]
 
 eats = pygame.sprite.Group()
 
@@ -32,6 +36,7 @@ eats = pygame.sprite.Group()
 def createBall(group):
     indx = randint(0, len(eats_surf)-1)
     x = randint(165, 650-20)
+
     speed = randint(1, 4)
 
     return Ball(x, speed, eats_surf[indx], eats_data[indx]['score'], group)
@@ -40,12 +45,67 @@ def createBall(group):
 createBall(eats)
 speed = 10
 
+
 def collideeats():
-    global game_score
+    global game_score, health
     for ball in eats:
         if t_rect.collidepoint(ball.rect.center):
+
             game_score += ball.score
             ball.kill()
+            if not check_health():
+                print('game over')
+                game_over()
+
+
+def print_text(mesage, x, y, font_color=(94, 138, 14), font_type='Fonts/Samson.ttf', font_size=40):
+    font_type = pygame.font.Font(font_type, font_size)
+    text = font_type.render(mesage, True, font_color)
+    sc.blit(text, (x, y))
+
+
+def game_over():
+    global health, game_score, eats
+    pause()
+    health = 3
+    game_score = 0
+    for i in eats:
+        i.kill()
+
+
+def pause():
+    pause = True
+    while pause:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+        print_text('Press ENTER to play', 300, 300)
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RETURN]:
+            pause = False
+
+        pygame.display.update()
+        clock.tick(20)
+
+
+def show_health():
+    global health
+    x = 20
+    show = 0
+    while health != show:
+        sc.blit(health_img, (x, 40))
+        x += 45
+        show += 1
+
+
+def check_health():
+    global health
+    health -= 1
+    if health == 0:
+        game_over()
+        return False
+    return True
+
 
 while True:
     for event in pygame.event.get():
@@ -64,15 +124,16 @@ while True:
         if t_rect.x > 650-t_rect.width:
             t_rect.x = 650-t_rect.width
 
+
     sc.blit(bg, (0, 0))
     eats.draw(sc)
-    sc_text = f.render(str(game_score), 1, (94, 138, 14))
-    sc.blit(sc_text, (20, 10))
+    print_text(str(game_score), 20, 10)
     sc.blit(telega, t_rect)
+    show_health()
     pygame.display.update()
 
     clock.tick(FPS)
 
     eats.update(H)
     collideeats()
-#ааааааааа
+
