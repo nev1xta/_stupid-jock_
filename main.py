@@ -4,7 +4,10 @@ from random import randint
 
 pygame.init()
 
-pygame.time.set_timer(pygame.USEREVENT, 2000)
+pygame.time.set_timer(pygame.USEREVENT, 1000)
+second = 0
+blindness_stopin = 60
+drop_ball = False
 
 W, H = 1000, 650
 sc = pygame.display.set_mode((W, H))
@@ -12,7 +15,9 @@ pygame.display.set_caption('STUPID JOCK')
 
 
 telega = pygame.image.load('images/jock.png').convert_alpha()
-bg = pygame.image.load("images/red_bg.png")
+red_bg = pygame.image.load("images/red_bg.png")
+blue_bg = pygame.image.load("images/blue_bg.png")
+bg = red_bg
 t_rect = telega.get_rect(centerx=W//2, bottom=H-5)
 
 
@@ -114,7 +119,12 @@ while True:
         if event.type == pygame.QUIT:
             exit()
         elif event.type == pygame.USEREVENT:
-            createBall(eats)
+            second += 1
+            drop_ball = True
+
+    if second % 2 == 0 and drop_ball:
+        createBall(eats)
+        drop_ball = False
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a] or keys[pygame.K_LEFT]:
@@ -128,6 +138,16 @@ while True:
     if keys[pygame.K_ESCAPE]:
         game_over(True)
 
+    if second % 30 == 0 and second > 0 and bg == red_bg:
+        blindness_stopin -= 1
+        if blindness_stopin == 0:
+            bg = blue_bg
+            blindness_stopin = 60
+    elif second % 30 == 0 and second > 0 and bg == blue_bg:
+        blindness_stopin -= 1
+        if blindness_stopin == 0:
+            bg = red_bg
+            blindness_stopin = 60
     sc.blit(bg, (0, 0))
     eats.draw(sc)
     print_text(str(game_score), 20, 10)
