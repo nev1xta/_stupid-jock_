@@ -8,6 +8,8 @@ pygame.time.set_timer(pygame.USEREVENT, 1000)
 second = 0
 blindness_stopin = 60
 drop_ball = False
+drop_ball2 = False
+timer = 30
 
 W, H = 1000, 650
 sc = pygame.display.set_mode((W, H))
@@ -18,8 +20,7 @@ telega = pygame.image.load('images/jock.png').convert_alpha()
 red_bg = pygame.image.load("images/red_bg.png")
 blue_bg = pygame.image.load("images/blue_bg.png")
 bg = red_bg
-t_rect = telega.get_rect(centerx=W//2, bottom=H-5)
-
+t_rect = telega.get_rect(centerx=W//2, bottom=H)
 
 
 clock = pygame.time.Clock()
@@ -28,6 +29,14 @@ calories_score = 0
 power_score = 0
 health = 3
 health_img = pygame.image.load('images/heart.png')
+
+eating = [pygame.image.load('images/jock.png'), pygame.image.load('images/jock2.png'),
+          pygame.image.load('images/jock3.png'), pygame.image.load('images/jock4.png'),
+          pygame.image.load('images/jock5.png'), pygame.image.load('images/jock4.png'),
+          pygame.image.load('images/jock3.png'), pygame.image.load('images/jock2.png'),
+          pygame.image.load('images/jock1.png'), pygame.image.load('images/jock.png')]
+animCount = 0
+eating_start = False
 
 eats_data = ({'path': 'egg.png', 'score': 100},
               {'path': 'meat.png', 'score': 150},
@@ -66,26 +75,29 @@ speed = 10
 
 
 def collideeats():
-    global calories_score, health
+    global calories_score, health, eating_start
     for ball in eats:
         if t_rect.collidepoint(ball.rect.center):
-
-            calories_score += ball.score
+            if bg == red_bg:
+                calories_score += ball.score
+                eating_start = True
+            else:
+                if not check_health():
+                    print('game over')
             ball.kill()
-            if not check_health():
-                print('game over')
 
 
 def collideTraining_facils():
-    global calories_score, health, power_score
+    global calories_score, health, power_score, bg, red_bg, blue_bg
     for ball in training_facils:
         if t_rect.collidepoint(ball.rect.center):
-
-            calories_score -= 50
-            power_score += ball.score
+            if bg == blue_bg:
+                calories_score -= 50
+                power_score += ball.score
+            else:
+                if not check_health():
+                    print('game over')
             ball.kill()
-            if not check_health():
-                print('game over')
 
 
 def print_text(mesage, x, y, font_color=(94, 138, 14), font_type='Fonts/Samson.ttf', font_size=40):
@@ -95,7 +107,7 @@ def print_text(mesage, x, y, font_color=(94, 138, 14), font_type='Fonts/Samson.t
 
 
 def game_over(bool):
-    global health, calories_score, eats, training_facils, power_score
+    global health, calories_score, eats, training_facils, power_score, bg, red_bg, timer
     if bool:
         pause()
     else:
@@ -107,6 +119,8 @@ def game_over(bool):
             i.kill()
         for i in training_facils:
             i.kill()
+        bg = red_bg
+        timer = 35
 
 
 def pause():
@@ -126,10 +140,10 @@ def pause():
 
 def show_health():
     global health
-    x = 20
+    x = 680
     show = 0
     while health != show:
-        sc.blit(health_img, (x, 40))
+        sc.blit(health_img, (x, 360))
         x += 45
         show += 1
 
@@ -149,7 +163,9 @@ while True:
             exit()
         elif event.type == pygame.USEREVENT:
             second += 1
+            timer -= 1
             drop_ball = True
+            drop_ball2 = True
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a] or keys[pygame.K_LEFT]:
@@ -171,23 +187,44 @@ while True:
         createTraining_facil(training_facils)
         drop_ball = False
 
+    if second % 4 == 0 and drop_ball2 and bg == blue_bg:
+        createEat(eats)
+        drop_ball2 = False
+
+    elif second % 4 == 0 and drop_ball2 and bg == red_bg:
+        createTraining_facil(training_facils)
+        drop_ball2 = False
+
     if second % 30 == 0 and second > 0 and bg == red_bg:
         blindness_stopin -= 1
-        if blindness_stopin == 0:
+        print(blindness_stopin)
+        if blindness_stopin == 1:
             bg = blue_bg
             blindness_stopin = 60
+            timer = 30
     elif second % 30 == 0 and second > 0 and bg == blue_bg:
         blindness_stopin -= 1
-        if blindness_stopin == 0:
+        print(blindness_stopin)
+        if blindness_stopin == 1:
             bg = red_bg
             blindness_stopin = 60
+            timer = 30
 
     sc.blit(bg, (0, 0))
     eats.draw(sc)
     training_facils.draw(sc)
-    print_text(str(calories_score), 20, 10)
-    print_text(str(power_score), 100, 10)
-    sc.blit(telega, t_rect)
+    print_text(str(timer), 370, 15)
+    print_text(str(calories_score), 685, 170)
+    print_text(str(power_score), 685, 290)
+    if animCount + 1 >= 60:
+        animCount = 0
+        eating_start = False
+    if not eating_start:
+        sc.blit(telega, t_rect)
+    elif eating_start:
+        sc.blit(eating[animCount // 6], t_rect)
+        animCount += 1
+
     show_health()
     pygame.display.update()
 
