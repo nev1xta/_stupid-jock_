@@ -158,6 +158,7 @@ def check_health():
 
 
 while True:
+    print(pygame.time.get_ticks())
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit()
@@ -172,10 +173,12 @@ while True:
         t_rect.x -= speed
         if t_rect.x < 150:
             t_rect.x = 150
+
     if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
         t_rect.x += speed
         if t_rect.x > 650-t_rect.width:
             t_rect.x = 650-t_rect.width
+
     if keys[pygame.K_ESCAPE]:
         game_over(True)
 
