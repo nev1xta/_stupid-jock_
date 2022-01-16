@@ -15,6 +15,8 @@ W, H = 1000, 650
 sc = pygame.display.set_mode((W, H))
 pygame.display.set_caption('STUPID JOCK')
 
+lvl = 0
+
 menu_bg = pygame.image.load('images/menu_bg.png')
 menu_bg = pygame.transform.scale(menu_bg, (1000, 650))
 
@@ -22,8 +24,7 @@ telega = pygame.image.load('images/jock.png').convert_alpha()
 red_bg = pygame.image.load("images/red_bg.png")
 blue_bg = pygame.image.load("images/blue_bg.png")
 bg = red_bg
-t_rect = telega.get_rect(centerx=W//2, bottom=H)
-
+t_rect = telega.get_rect(centerx=W // 2, bottom=H)
 
 clock = pygame.time.Clock()
 FPS = 60
@@ -41,15 +42,14 @@ animCount = 0
 eating_start = False
 
 eats_data = ({'path': 'egg.png', 'score': 100},
-              {'path': 'meat.png', 'score': 150},
-              {'path': 'soup.png', 'score': 200})
+             {'path': 'meat.png', 'score': 150},
+             {'path': 'soup.png', 'score': 200})
 eats_surf = [pygame.image.load('images/' + data['path']).convert_alpha() for data in eats_data]
 eats = pygame.sprite.Group()
 
-
 training_facil_data = ({'path': 'expander.png', 'score': 100},
-              {'path': 'dumbbell.png', 'score': 150},
-              {'path': 'weight.png', 'score': 200})
+                       {'path': 'dumbbell.png', 'score': 150},
+                       {'path': 'weight.png', 'score': 200})
 training_facil_surf = [pygame.image.load('images/' + data['path']).convert_alpha() for data in training_facil_data]
 training_facils = pygame.sprite.Group()
 
@@ -64,12 +64,12 @@ class Button:
 
     def draw(self, x, y, message, action=None):
         mouse = pygame.mouse.get_pos()
-        click = pygame.mouse.get_pressed()
         if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height:
             pygame.draw.rect(sc, self.active_color, (x, y, self.width, self.height))
-            if click[0] == 1:
-                if action is not None:
-                    action()
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if action is not None:
+                        action()
         else:
             pygame.draw.rect(sc, self.inactive_color, (x, y, self.width, self.height))
         print_text(message, x + 10, y + 10, font_size=self.font_size, font_color=(0, 0, 0))
@@ -97,15 +97,54 @@ def show_menu():
                 pygame.quit()
                 quit()
         sc.blit(menu_bg, ((0, 0), (1000, 650)))
-        start_btn.draw(x=300, y=200, message='start game', action=start_game)
+        start_btn.draw(x=300, y=200, message='start game', action=level_selection)
         quit_btn.draw(x=333, y=350, message='exit game', action=quit)
         pygame.display.update()
         clock.tick(60)
 
 
+def level_selection():
+    global menu_bg
+    show_level = True
+
+    level1_btn = Button(175, 75, (25, 130, 10), (20, 100, 10), font_size=50)
+    level2_btn = Button(175, 75, (25, 130, 10), (20, 100, 10), font_size=50)
+    level3_btn = Button(175, 75, (25, 130, 10), (20, 100, 10), font_size=50)
+
+    while show_level:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        sc.blit(menu_bg, ((0, 0), (1000, 650)))
+        level1_btn.draw(x=412, y=200, message='level1', action=start_level1())
+        level2_btn.draw(x=412, y=300, message='level2', action=start_level2())
+        level3_btn.draw(x=412, y=400, message='level3', action=start_level3())
+        pygame.display.update()
+        clock.tick(60)
+
+
+def start_level1():
+    global lvl
+    lvl = 1
+    start_game()
+
+
+def start_level2():
+    global lvl
+    lvl = 2
+    start_game()
+
+
+def start_level3():
+    global lvl
+    lvl = 3
+    start_game()
+
+
 def createEat(group):
-    indx = randint(0, len(eats_surf)-1)
-    x = randint(165, 650-20)
+    indx = randint(0, len(eats_surf) - 1)
+    x = randint(165, 650 - 20)
 
     speed = randint(1, 4)
 
@@ -113,8 +152,8 @@ def createEat(group):
 
 
 def createTraining_facil(group):
-    indx = randint(0, len(training_facil_surf)-1)
-    x = randint(165, 650-20)
+    indx = randint(0, len(training_facil_surf) - 1)
+    x = randint(165, 650 - 20)
 
     speed = randint(1, 4)
 
@@ -238,8 +277,8 @@ def start_game():
 
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             t_rect.x += speed
-            if t_rect.x > 650-t_rect.width:
-                t_rect.x = 650-t_rect.width
+            if t_rect.x > 650 - t_rect.width:
+                t_rect.x = 650 - t_rect.width
 
         if keys[pygame.K_ESCAPE]:
             game_over(True)
