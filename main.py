@@ -22,7 +22,9 @@ f.close()
 menu_bg = pygame.image.load('images/menu_bg.png')
 menu_bg = pygame.transform.scale(menu_bg, (1000, 650))
 
-telega = pygame.image.load('images/jock.png').convert_alpha()
+jock = pygame.image.load('images/jock.png').convert_alpha()
+hand = pygame.image.load('images/hand.png')
+telega = jock
 red_bg = pygame.image.load("images/red_bg.png")
 blue_bg = pygame.image.load("images/blue_bg.png")
 bg = red_bg
@@ -313,7 +315,8 @@ def check_health():
 
 
 def start_game():
-    global second, timer, drop_ball, drop_ball2, bg, blindness_stopin, animCount, eating, eating_start, lvl
+    global second, timer, drop_ball, drop_ball2, bg, blindness_stopin,\
+        animCount, eating, eating_start, lvl, telega, jock
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -357,16 +360,18 @@ def start_game():
         if second % 30 == 0 and second > 0 and bg == red_bg:
             blindness_stopin -= 1
             print(blindness_stopin)
-            if blindness_stopin == 4:
+            if blindness_stopin == 7:
                 bg = blue_bg
+                telega = hand
                 blindness_stopin = 60
                 timer = 30
                 second = 0
         elif second % 30 == 0 and second > 0 and bg == blue_bg:
             blindness_stopin -= 1
             print(blindness_stopin)
-            if blindness_stopin == 4:
+            if blindness_stopin == 7:
                 bg = red_bg
+                telega = jock
                 blindness_stopin = 60
                 timer = 30
                 second = 0
@@ -400,12 +405,9 @@ def start_game():
             print_text(mesage='kcal-1000', x=670, y=410, font_size=30)
             print_text(mesage='power-2500', x=670, y=440, font_size=30)
 
-
         show_health()
         pygame.display.update()
-
         clock.tick(FPS)
-
         eats.update(H)
         training_facils.update(H)
         collideeats()
