@@ -120,7 +120,7 @@ def game_over(bool):
         for i in training_facils:
             i.kill()
         bg = red_bg
-        timer = 35
+        timer = 30
 
 
 def pause():
@@ -158,7 +158,6 @@ def check_health():
 
 
 while True:
-    print(pygame.time.get_ticks())
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit()
