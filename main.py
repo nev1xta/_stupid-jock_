@@ -3,7 +3,7 @@ from ball import Ball
 from random import randint
 
 pygame.init()
-
+lvl = 0
 pygame.time.set_timer(pygame.USEREVENT, 1000)
 second = 0
 blindness_stopin = 60
@@ -15,7 +15,9 @@ W, H = 1000, 650
 sc = pygame.display.set_mode((W, H))
 pygame.display.set_caption('STUPID JOCK')
 
-lvl = 0
+f = open('progress.txt', 'r', encoding='utf-8')
+progress = f.read().split()
+f.close()
 
 menu_bg = pygame.image.load('images/menu_bg.png')
 menu_bg = pygame.transform.scale(menu_bg, (1000, 650))
@@ -67,7 +69,7 @@ class Button:
         if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height:
             pygame.draw.rect(sc, self.active_color, (x, y, self.width, self.height))
             for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONUP:
+                if event.type == pygame.MOUSEBUTTONDOWN:
                     if action is not None:
                         action()
         else:
@@ -76,7 +78,7 @@ class Button:
 
 
 def show_menu():
-    global menu_bg, bg, timer, health, calories_score, power_score
+    global menu_bg, bg, timer, health, calories_score, power_score, second
     show = True
 
     start_btn = Button(400, 100, (25, 130, 10), (20, 100, 10), font_size=75)
@@ -90,6 +92,7 @@ def show_menu():
         i.kill()
     bg = red_bg
     timer = 30
+    second = 0
 
     while show:
         for event in pygame.event.get():
@@ -100,7 +103,6 @@ def show_menu():
         start_btn.draw(x=300, y=200, message='start game', action=level_selection)
         quit_btn.draw(x=333, y=350, message='exit game', action=quit)
         pygame.display.update()
-        clock.tick(60)
 
 
 def level_selection():
@@ -110,6 +112,7 @@ def level_selection():
     level1_btn = Button(175, 75, (25, 130, 10), (20, 100, 10), font_size=50)
     level2_btn = Button(175, 75, (25, 130, 10), (20, 100, 10), font_size=50)
     level3_btn = Button(175, 75, (25, 130, 10), (20, 100, 10), font_size=50)
+    quit_btn = Button(115, 75, (25, 130, 10), (20, 100, 10), font_size=50)
 
     while show_level:
         for event in pygame.event.get():
@@ -117,11 +120,11 @@ def level_selection():
                 pygame.quit()
                 quit()
         sc.blit(menu_bg, ((0, 0), (1000, 650)))
-        level1_btn.draw(x=412, y=200, message='level1', action=start_level1())
-        level2_btn.draw(x=412, y=300, message='level2', action=start_level2())
-        level3_btn.draw(x=412, y=400, message='level3', action=start_level3())
+        level1_btn.draw(x=412, y=100, message='level1', action=start_level1)
+        level2_btn.draw(x=412, y=200, message='level2', action=start_level2)
+        level3_btn.draw(x=412, y=300, message='level3', action=start_level3)
+        quit_btn.draw(x=442, y=400, message='back', action=show_menu)
         pygame.display.update()
-        clock.tick(60)
 
 
 def start_level1():
@@ -131,21 +134,22 @@ def start_level1():
 
 
 def start_level2():
-    global lvl
-    lvl = 2
-    start_game()
+    global lvl, progress
+    if int(progress[0]) == 1:
+        lvl = 2
+        start_game()
 
 
 def start_level3():
-    global lvl
-    lvl = 3
-    start_game()
+    global lvl, progress
+    if int(progress[1]) == 1:
+        lvl = 3
+        start_game()
 
 
 def createEat(group):
     indx = randint(0, len(eats_surf) - 1)
     x = randint(165, 650 - 20)
-
     speed = randint(1, 4)
 
     return Ball(x, speed, eats_surf[indx], eats_data[indx]['score'], group)
@@ -154,7 +158,6 @@ def createEat(group):
 def createTraining_facil(group):
     indx = randint(0, len(training_facil_surf) - 1)
     x = randint(165, 650 - 20)
-
     speed = randint(1, 4)
 
     return Ball(x, speed, training_facil_surf[indx], training_facil_data[indx]['score'], group)
@@ -197,7 +200,7 @@ def print_text(mesage, x, y, font_color=(94, 138, 14), font_type='Fonts/Samson.t
 
 
 def game_over(bool):
-    global health, calories_score, eats, training_facils, power_score, bg, red_bg, timer
+    global health, calories_score, eats, training_facils, power_score, bg, red_bg, timer, second
     if bool:
         Pause()
     else:
@@ -211,6 +214,7 @@ def game_over(bool):
             i.kill()
         bg = red_bg
         timer = 30
+        second = 0
 
 
 pause = False
@@ -233,6 +237,57 @@ def Pause():
         clock.tick(20)
 
 
+def Win():
+    global health, calories_score, power_score, bg, timer, lvl, progress, second
+    win = True
+    if lvl == 1:
+        progress[0] = '1'
+        f = open('progress.txt', 'w', encoding='utf-8')
+        f.write('\n'.join(progress))
+        f.close()
+    elif lvl == 2:
+        progress[1] = '1'
+        f = open('progress.txt', 'w', encoding='utf-8')
+        f.write('\n'.join(progress))
+        f.close()
+    health = 3
+    calories_score = 0
+    power_score = 0
+    for i in eats:
+        i.kill()
+    for i in training_facils:
+        i.kill()
+    bg = red_bg
+    timer = 30
+    second = 0
+    while win:
+        print_text(mesage='you won', x=320, y=150)
+        if lvl < 3:
+            next_lvl_btn = Button(140, 50, (25, 130, 10), (20, 100, 10), font_size=30)
+            next_lvl_btn.draw(x=320, y=200, message='next lvl', action=next_lvl)
+
+        exit_to_menu_btn = Button(185, 50, (25, 130, 10), (20, 100, 10), font_size=30)
+        exit_to_menu_btn.draw(x=300, y=275, message='exit to menu', action=show_menu)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+        pygame.display.update()
+        clock.tick(20)
+
+
+def next_lvl():
+    global lvl, progress
+    if lvl == 1:
+        if int(progress[0]) == 1:
+            lvl += 1
+            start_game()
+    elif lvl == 2:
+        if int(progress[1]) == 1:
+            lvl += 1
+            start_game()
+
+
 def stop_pause():
     global pause
     pause = False
@@ -243,7 +298,7 @@ def show_health():
     x = 680
     show = 0
     while health != show:
-        sc.blit(health_img, (x, 360))
+        sc.blit(health_img, (x, 600))
         x += 45
         show += 1
 
@@ -258,12 +313,12 @@ def check_health():
 
 
 def start_game():
-    global second, timer, drop_ball, drop_ball2, bg, blindness_stopin, animCount, eating, eating_start
+    global second, timer, drop_ball, drop_ball2, bg, blindness_stopin, animCount, eating, eating_start, lvl
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
-            elif event.type == pygame.USEREVENT:
+            if event.type == pygame.USEREVENT:
                 second += 1
                 timer -= 1
                 drop_ball = True
@@ -302,20 +357,21 @@ def start_game():
         if second % 30 == 0 and second > 0 and bg == red_bg:
             blindness_stopin -= 1
             print(blindness_stopin)
-            if blindness_stopin == 1:
+            if blindness_stopin == 4:
                 bg = blue_bg
                 blindness_stopin = 60
                 timer = 30
+                second = 0
         elif second % 30 == 0 and second > 0 and bg == blue_bg:
             blindness_stopin -= 1
             print(blindness_stopin)
-            if blindness_stopin == 1:
+            if blindness_stopin == 4:
                 bg = red_bg
                 blindness_stopin = 60
                 timer = 30
-
+                second = 0
         if calories_score < 0:
-            game_over(True)
+            game_over(bool=False)
 
         sc.blit(bg, (0, 0))
         eats.draw(sc)
@@ -331,6 +387,19 @@ def start_game():
         elif eating_start:
             sc.blit(eating[animCount // 6], t_rect)
             animCount += 1
+        print_text(mesage='level' + str(lvl), x=160, y=15)
+        print_text(mesage='power:', x=670, y=230, font_size=50, font_color=(0, 0, 0))
+        print_text(mesage='kcal:', x=670, y=105, font_size=50, font_color=(0, 0, 0))
+        print_text(mesage='SCORE', x=660, y=15, font_size=75, font_color=(0, 0, 0))
+        print_text(mesage='mission', x=670, y=360, font_size=50, font_color=(0, 0, 0))
+        if lvl == 1:
+            print_text(mesage='kcal-2500', x=670, y=410, font_size=30)
+        if lvl == 2:
+            print_text(mesage='power-2500', x=670, y=410, font_size=30)
+        if lvl == 3:
+            print_text(mesage='kcal-1000', x=670, y=410, font_size=30)
+            print_text(mesage='power-2500', x=670, y=440, font_size=30)
+
 
         show_health()
         pygame.display.update()
@@ -342,7 +411,13 @@ def start_game():
         collideeats()
         collideTraining_facils()
 
+        if lvl == 1 and calories_score >= 2500:
+            Win()
+        elif lvl == 2 and power_score >= 2500:
+            Win()
+        elif lvl == 3 and calories_score >= 1000 and power_score >= 2500:
+            Win()
+
 
 show_menu()
-sc.blit((0, 0, 0))
 start_game()
