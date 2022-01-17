@@ -80,7 +80,7 @@ class Button:
 
 
 def show_menu():
-    global menu_bg, bg, timer, health, calories_score, power_score, second
+    global menu_bg, bg, timer, health, calories_score, power_score, second, telega
     show = True
 
     start_btn = Button(400, 100, (25, 130, 10), (20, 100, 10), font_size=75)
@@ -88,6 +88,7 @@ def show_menu():
     health = 3
     calories_score = 0
     power_score = 0
+    telega = hand
     for i in eats:
         i.kill()
     for i in training_facils:
@@ -130,20 +131,23 @@ def level_selection():
 
 
 def start_level1():
-    global lvl
+    global lvl, telega
+    telega = jock
     lvl = 1
     start_game()
 
 
 def start_level2():
-    global lvl, progress
+    global lvl, progress, telega
+    telega = jock
     if int(progress[0]) == 1:
         lvl = 2
         start_game()
 
 
 def start_level3():
-    global lvl, progress
+    global lvl, progress, telega
+    telega = jock
     if int(progress[1]) == 1:
         lvl = 3
         start_game()
@@ -202,7 +206,7 @@ def print_text(mesage, x, y, font_color=(94, 138, 14), font_type='Fonts/Samson.t
 
 
 def game_over(bool):
-    global health, calories_score, eats, training_facils, power_score, bg, red_bg, timer, second
+    global health, calories_score, eats, training_facils, power_score, bg, red_bg, timer, second, telega
     if bool:
         Pause()
     else:
@@ -210,6 +214,7 @@ def game_over(bool):
         health = 3
         calories_score = 0
         power_score = 0
+        telega = jock
         for i in eats:
             i.kill()
         for i in training_facils:
@@ -240,7 +245,7 @@ def Pause():
 
 
 def Win():
-    global health, calories_score, power_score, bg, timer, lvl, progress, second
+    global health, calories_score, power_score, bg, timer, lvl, progress, second, telega
     win = True
     if lvl == 1:
         progress[0] = '1'
@@ -255,6 +260,7 @@ def Win():
     health = 3
     calories_score = 0
     power_score = 0
+    telega = jock
     for i in eats:
         i.kill()
     for i in training_facils:
@@ -279,7 +285,8 @@ def Win():
 
 
 def next_lvl():
-    global lvl, progress
+    global lvl, progress, telega
+    telega = jock
     if lvl == 1:
         if int(progress[0]) == 1:
             lvl += 1
